@@ -11,7 +11,7 @@ const canRun = Boolean(apiKey && baseUrl && from && to);
 describe.skipIf(!canRun)('e2e: staging', () => {
   it('sends a real transactional email', async () => {
     const mi = new MissionInbox({ apiKey: apiKey!, baseUrl: baseUrl! });
-    const result = await mi.transactional.emails.send({
+    const result = await mi.emails.send({
       from: from!,
       to: to!,
       subject: `SDK e2e ${new Date().toISOString()}`,

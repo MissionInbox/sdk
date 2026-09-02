@@ -1,16 +1,15 @@
 import type { MissionInbox } from '../client.js';
-import type { CreateSendingIdentifierParams, SendingIdentifier } from '../types.js';
+import type {
+  CreateSendingIdentifierParams,
+  SendingIdentifier,
+  UpdateSendingIdentifierParams,
+} from '../types.js';
 
 /**
- * The `sendingIdentifiers` resource under {@link MissionInbox.transactional}.
+ * The `sendingIdentifiers` resource. Access via `mi.sendingIdentifiers`.
  *
  * A sending identifier is a `From:` address that has been approved for use
- * on the account. It is not a mailbox — there is no inbox, no password, and
- * no IMAP. Registering an identifier only records the authorisation to send
- * as that address.
- *
- * You should not construct this class directly — access it via
- * `mi.transactional.sendingIdentifiers`.
+ * on the account. It is not a mailbox — no inbox, no password, no IMAP.
  */
 export class SendingIdentifiers {
   /** @internal */
@@ -19,12 +18,9 @@ export class SendingIdentifiers {
   /**
    * List every sending identifier registered on the authenticated account.
    *
-   * @returns All identifiers on the account, including ones that are not yet
-   * verified (`canSend: false`).
-   *
    * @example
    * ```ts
-   * const identifiers = await mi.transactional.sendingIdentifiers.list();
+   * const identifiers = await mi.sendingIdentifiers.list();
    * const usable = identifiers.filter((id) => id.canSend);
    * ```
    */
@@ -35,29 +31,18 @@ export class SendingIdentifiers {
     });
   }
 
+  /** Retrieve a single sending identifier by its UUID. */
+  async get(id: string): Promise<SendingIdentifier> {
+    return this.client.request<SendingIdentifier>({
+      method: 'GET',
+      path: `/api/sending-identifiers/${encodeURIComponent(id)}`,
+    });
+  }
+
   /**
-   * Register a new sending identifier.
-   *
-   * The identifier's domain must already exist on the account. On creation,
-   * the identifier is not yet usable: `canSend` will be `false` until the
-   * domain's DNS records have been published and confirmed by the MTA.
-   *
-   * @param params - The address to register. See {@link CreateSendingIdentifierParams}.
-   * @returns The newly registered identifier, with its current verification state.
-   * @throws {ConflictError} when the address is already registered on the account.
-   * @throws {PermissionError} when the domain is not registered to the account.
-   *
-   * @example
-   * ```ts
-   * const identifier = await mi.transactional.sendingIdentifiers.create({
-   *   emailAddress: 'notifications@acme.com',
-   *   displayName: 'Acme Notifications',
-   * });
-   *
-   * if (!identifier.canSend) {
-   *   console.log(`Waiting on verification: ${identifier.domainVerificationState}`);
-   * }
-   * ```
+   * Register a new sending identifier. The identifier's domain must already
+   * exist on the account. On creation `canSend` is `false` until DNS +
+   * verification complete.
    */
   async create(params: CreateSendingIdentifierParams): Promise<SendingIdentifier> {
     const body: { emailAddress: string; displayName?: string } = {
@@ -69,6 +54,23 @@ export class SendingIdentifiers {
       method: 'POST',
       path: '/api/sending-identifiers',
       body,
+    });
+  }
+
+  /** Update the identifier's display name. Pass an empty string to clear it. */
+  async update(id: string, params: UpdateSendingIdentifierParams): Promise<SendingIdentifier> {
+    return this.client.request<SendingIdentifier>({
+      method: 'PATCH',
+      path: `/api/sending-identifiers/${encodeURIComponent(id)}`,
+      body: params,
+    });
+  }
+
+  /** Delete a sending identifier. Soft-deleted server-side; may be recreated later. */
+  async delete(id: string): Promise<{ message: string }> {
+    return this.client.request<{ message: string }>({
+      method: 'DELETE',
+      path: `/api/sending-identifiers/${encodeURIComponent(id)}`,
     });
   }
 }

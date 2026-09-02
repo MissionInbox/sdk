@@ -28,7 +28,7 @@ function client(response: { status: number; body?: unknown }) {
 }
 
 async function send(mi: MissionInbox): Promise<void> {
-  await mi.transactional.emails.send({ from: 'a@b.com', to: 'c@d.com', subject: 's', text: 't' });
+  await mi.emails.send({ from: 'a@b.com', to: 'c@d.com', subject: 's', text: 't' });
 }
 
 describe('error mapping', () => {
