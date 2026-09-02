@@ -1,0 +1,44 @@
+{
+  "name": "missioninbox",
+  "version": "0.1.0",
+  "description": "Official MissionInbox SDK for Node.js and TypeScript",
+  "keywords": ["missioninbox", "email", "transactional", "sdk"],
+  "homepage": "https://github.com/MissionInbox/sdk/tree/main/packages/node#readme",
+  "bugs": "https://github.com/MissionInbox/sdk/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MissionInbox/sdk.git",
+    "directory": "packages/node"
+  },
+  "license": "MIT",
+  "author": "MissionInbox, Inc.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
