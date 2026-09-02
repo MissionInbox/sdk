@@ -16,11 +16,15 @@ export function makeFetch(responses: FetchResponse | FetchResponse[]): {
   fetch: typeof fetch;
   calls: Captured[];
 } {
-  const queue = Array.isArray(responses) ? [...responses] : [responses];
+  const isArray = Array.isArray(responses);
+  const queue: FetchResponse[] = isArray ? [...responses] : [];
+  const single: FetchResponse | undefined = isArray ? undefined : responses;
   const calls: Captured[] = [];
   const impl = (async (url: string | URL | Request, init: RequestInit = {}) => {
     calls.push({ url: String(url), init });
-    const r = queue.shift() ?? queue[queue.length - 1] ?? { status: 200, body: '' };
+    // Single response object is reused on every call; array is drained and
+    // then the last item is repeated.
+    const r = single ?? queue.shift() ?? queue[queue.length - 1] ?? { status: 200, body: '' };
     const status = r.status ?? 200;
     const body = r.body === undefined ? '' : typeof r.body === 'string' ? r.body : JSON.stringify(r.body);
     return new Response(body, {

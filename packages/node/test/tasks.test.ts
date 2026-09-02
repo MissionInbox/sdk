@@ -68,7 +68,8 @@ describe('tasks.waitFor', () => {
   it('throws when the deadline passes before completion', async () => {
     const { fetch } = makeFetch({ body: task('PROCESSING', 10) });
     const mi = newClient(fetch);
-    await expect(mi.tasks.waitFor('t-1', { pollInterval: 5, timeout: 5 })).rejects.toThrow(/Timed out/);
+    // pollInterval > timeout guarantees the deadline check fires on the first iteration.
+    await expect(mi.tasks.waitFor('t-1', { pollInterval: 100, timeout: 10 })).rejects.toThrow(/Timed out/);
   });
 
   it('returns immediately for an already-terminal task', async () => {
