@@ -34,18 +34,16 @@ jobs:
             exit 1
           fi
 
-      - name: Install splitsh-lite
+      - name: Configure git identity for subtree split
         run: |
-          curl -fsSL https://github.com/splitsh/lite/releases/download/v2.0.0/lite_linux_amd64.tar.gz \
-            -o /tmp/splitsh.tar.gz
-          tar -xzf /tmp/splitsh.tar.gz -C /tmp
-          sudo mv /tmp/splitsh-lite /usr/local/bin/splitsh-lite
-          splitsh-lite --version
+          git config user.name "sdk-bot"
+          git config user.email "noreply@missioninbox.com"
 
       - name: Split packages/php into a standalone commit tree
         id: split
         run: |
-          SHA=$(splitsh-lite --prefix=packages/php)
+          git subtree split --prefix=packages/php -b php-mirror
+          SHA=$(git rev-parse php-mirror)
           echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
       - name: Set up SSH for sdk-php deploy
