@@ -1,0 +1,72 @@
+name: php-publish
+
+# Publishes to Packagist by splitting packages/php out to the dedicated
+# `MissionInbox/sdk-php` repo (Packagist doesn't support monorepo subdirectories).
+# The tag on this monorepo — e.g. `php-v0.1.0` — is mirrored to `v0.1.0` on sdk-php.
+# Packagist's GitHub webhook on sdk-php picks up the new tag automatically.
+#
+# Prerequisites:
+#   1. `MissionInbox/sdk-php` repo exists (can be empty).
+#   2. Repo secret `SDK_PHP_DEPLOY_KEY` — an SSH private key with write access
+#      to sdk-php (deploy key on sdk-php with "allow write access").
+#   3. sdk-php is submitted to Packagist and its GitHub webhook is configured.
+
+on:
+  push:
+    tags:
+      - 'php-v*'
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout monorepo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag matches composer.json version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#php-v}"
+          # composer.json doesn't require a version field for VCS installs; use CHANGELOG's top entry as source-of-truth.
+          if ! head -20 packages/php/CHANGELOG.md | grep -q "^## $TAG_VERSION"; then
+            echo "::error::CHANGELOG top entry does not match $TAG_VERSION"
+            exit 1
+          fi
+
+      - name: Install splitsh-lite
+        run: |
+          curl -fsSL https://github.com/splitsh/lite/releases/download/v2.0.0/lite_linux_amd64.tar.gz \
+            -o /tmp/splitsh.tar.gz
+          tar -xzf /tmp/splitsh.tar.gz -C /tmp
+          sudo mv /tmp/splitsh-lite /usr/local/bin/splitsh-lite
+          splitsh-lite --version
+
+      - name: Split packages/php into a standalone commit tree
+        id: split
+        run: |
+          SHA=$(splitsh-lite --prefix=packages/php)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Set up SSH for sdk-php deploy
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SDK_PHP_DEPLOY_KEY }}
+
+      - name: Push split branch and tag to sdk-php
+        env:
+          SPLIT_SHA: ${{ steps.split.outputs.sha }}
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#php-v}"
+          git remote add sdk-php git@github.com:MissionInbox/sdk-php.git
+
+          # Trust GitHub host key
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # Force-push the split commit to main so sdk-php mirrors the current tree.
+          git push --force sdk-php "${SPLIT_SHA}:refs/heads/main"
+
+          # Tag it as v<semver> on sdk-php — Packagist reads plain semver tags.
+          git tag -f "v${TAG_VERSION}" "$SPLIT_SHA"
+          git push sdk-php "refs/tags/v${TAG_VERSION}"

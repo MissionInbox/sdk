@@ -5,6 +5,7 @@ Official SDKs for the [MissionInbox](https://missioninbox.com) API.
 | Language | Package | Status |
 |---|---|---|
 | JavaScript / TypeScript | [`@missioninbox/sdk`](https://www.npmjs.com/package/@missioninbox/sdk) (npm) | Beta |
+| PHP | [`missioninbox/sdk`](https://packagist.org/packages/missioninbox/sdk) (Packagist) | Beta |
 
 ```ts
 import { MissionInbox } from '@missioninbox/sdk';
@@ -14,7 +15,7 @@ const mi = new MissionInbox({
   baseUrl: process.env.MI_API_URL,   // provided by MissionInbox for your environment
 });
 
-await mi.transactional.emails.send({
+await mi.emails.send({
   from: 'notifications@yourdomain.com',
   to: ['user@example.com'],
   subject: 'Welcome',
@@ -25,6 +26,7 @@ await mi.transactional.emails.send({
 See the per-package README for install and usage:
 
 - [Node / TypeScript](./packages/node/README.md)
+- [PHP](./packages/php/README.md)
 
 ## License
 
