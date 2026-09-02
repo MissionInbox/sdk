@@ -69,7 +69,7 @@ const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
  *
  * @example Send a transactional email
  * ```ts
- * import { MissionInbox } from 'missioninbox';
+ * import { MissionInbox } from '@missioninbox/sdk';
  *
  * const mi = new MissionInbox({
  *   apiKey: process.env.MI_API_KEY!,
@@ -88,7 +88,7 @@ const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
  *
  * @example Handle specific errors
  * ```ts
- * import { UnregisteredSenderError, UnverifiedDomainError } from 'missioninbox';
+ * import { UnregisteredSenderError, UnverifiedDomainError } from '@missioninbox/sdk';
  *
  * try {
  *   await mi.transactional.emails.send({ ... });

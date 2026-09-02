@@ -4,10 +4,10 @@ Official SDKs for the [MissionInbox](https://missioninbox.com) API.
 
 | Language | Package | Status |
 |---|---|---|
-| JavaScript / TypeScript | [`missioninbox`](https://www.npmjs.com/package/missioninbox) (npm) | Beta |
+| JavaScript / TypeScript | [`@missioninbox/sdk`](https://www.npmjs.com/package/@missioninbox/sdk) (npm) | Beta |
 
 ```ts
-import { MissionInbox } from 'missioninbox';
+import { MissionInbox } from '@missioninbox/sdk';
 
 const mi = new MissionInbox({
   apiKey: process.env.MI_API_KEY,

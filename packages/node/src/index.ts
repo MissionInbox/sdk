@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import { MissionInbox } from 'missioninbox';
+ * import { MissionInbox } from '@missioninbox/sdk';
  *
  * const mi = new MissionInbox({
  *   apiKey: process.env.MI_API_KEY!,

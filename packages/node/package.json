@@ -1,7 +1,10 @@
 {
-  "name": "missioninbox",
+  "name": "@missioninbox/sdk",
   "version": "0.1.0",
   "description": "Official MissionInbox SDK for Node.js and TypeScript",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": ["missioninbox", "email", "transactional", "sdk"],
   "homepage": "https://github.com/MissionInbox/sdk/tree/main/packages/node#readme",
   "bugs": "https://github.com/MissionInbox/sdk/issues",

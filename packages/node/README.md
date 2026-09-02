@@ -1,11 +1,11 @@
-# missioninbox
+# @missioninbox/sdk
 
 Official [MissionInbox](https://missioninbox.com) SDK for Node.js and TypeScript.
 
 ## Install
 
 ```bash
-npm install missioninbox
+npm install @missioninbox/sdk
 ```
 
 Requires Node.js 18 or newer.
@@ -13,7 +13,7 @@ Requires Node.js 18 or newer.
 ## Send a transactional email
 
 ```ts
-import { MissionInbox } from 'missioninbox';
+import { MissionInbox } from '@missioninbox/sdk';
 
 const mi = new MissionInbox({
   apiKey: process.env.MI_API_KEY!,
@@ -66,7 +66,7 @@ import {
   UnregisteredSenderError,
   UnverifiedDomainError,
   SendLimitExceededError,
-} from 'missioninbox';
+} from '@missioninbox/sdk';
 
 try {
   await mi.transactional.emails.send({ /* … */ });

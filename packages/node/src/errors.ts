@@ -16,7 +16,7 @@ export interface ApiErrorBody {
  *
  * @example
  * ```ts
- * import { MissionInbox, MissionInboxError } from 'missioninbox';
+ * import { MissionInbox, MissionInboxError } from '@missioninbox/sdk';
  *
  * try {
  *   await mi.transactional.emails.send({ ... });
