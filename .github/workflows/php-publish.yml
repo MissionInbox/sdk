@@ -7,9 +7,9 @@ name: php-publish
 #
 # Prerequisites:
 #   1. `MissionInbox/sdk-php` repo exists (can be empty).
-#   2. Repo secret `SDK_PHP_DEPLOY_KEY` — base64-encoded SSH private key with
-#      write access to sdk-php (deploy key on sdk-php with "allow write access").
-#      Store as: `base64 -w0 /path/to/private_key | clip.exe`.
+#   2. Repo secret `SDK_PHP_DEPLOY_KEY` — SSH private key (raw PEM or
+#      base64-encoded) with write access to sdk-php via a deploy key with
+#      "Allow write access" ticked.
 #   3. sdk-php is submitted to Packagist and its GitHub webhook is configured.
 
 on:
@@ -49,14 +49,19 @@ jobs:
 
       - name: Set up SSH for sdk-php deploy
         env:
-          DEPLOY_KEY_B64: ${{ secrets.SDK_PHP_DEPLOY_KEY }}
+          DEPLOY_KEY: ${{ secrets.SDK_PHP_DEPLOY_KEY }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s' "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
+          # Accept either raw PEM (starts with `-----`) or base64-encoded key.
+          if [[ "${DEPLOY_KEY:0:5}" == "-----" ]]; then
+            printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          else
+            printf '%s' "$DEPLOY_KEY" | base64 -d > ~/.ssh/id_ed25519
+          fi
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
-          # Sanity check — this fails loudly if the key is malformed.
+          # Sanity check — fails loudly if the key is malformed.
           ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
 
       - name: Push split branch and tag to sdk-php
