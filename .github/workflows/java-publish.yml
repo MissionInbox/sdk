@@ -1,0 +1,57 @@
+name: java-publish
+
+# Publishes to Maven Central via the Sonatype Central Portal.
+#
+# Prerequisites (one-time, all in the `MissionInbox/sdk` repo):
+#   1. Sonatype Central account claiming the `com.missioninbox` namespace, verified via
+#      DNS TXT on missioninbox.com. See docs: https://central.sonatype.com/register/namespace
+#   2. Repo secrets:
+#        MAVEN_CENTRAL_USERNAME   — Central token username
+#        MAVEN_CENTRAL_PASSWORD   — Central token password
+#        MAVEN_GPG_PRIVATE_KEY    — ASCII-armored GPG private key (raw, includes BEGIN/END lines)
+#        MAVEN_GPG_PASSPHRASE     — passphrase for that key
+#        (GPG public key uploaded to https://keyserver.ubuntu.com/ so Central can verify signatures)
+
+on:
+  push:
+    tags:
+      - 'java-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/java
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Verify tag matches pom.xml version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#java-v}"
+          POM_VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          if [ "$TAG_VERSION" != "$POM_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match pom.xml version $POM_VERSION"
+            exit 1
+          fi
+
+      - name: Run tests
+        run: mvn -B verify
+
+      - name: Deploy to Maven Central
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        run: mvn -B -P release deploy
