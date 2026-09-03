@@ -510,6 +510,11 @@ public final class Main {
         header(9, "Emails — send + inspect");
         if (!isFull) { skip("entire section (safe mode)"); return; }
 
+        // The SDK accepts inputs as Map<String, Object> parameter bags — the
+        // wire format is open-ended JSON, so a typed request class would just
+        // wrap the same shape. Use LinkedHashMap when order matters for
+        // debugging (keys serialize in insertion order); Map.of(...) is fine
+        // when it doesn't.
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("from", TEST_SENDER);
         params.put("to", TEST_TO);
@@ -562,6 +567,8 @@ public final class Main {
             skip("getStatus / getBulkStatus (Message-ID header not available yet)");
         }
 
+        // Raw MIME is assembled asynchronously — for very-fresh sends the API
+        // commonly returns {"status": "error"} until assembly finishes.
         tryCall(
                 "emails.getRaw('" + lastId + "')",
                 () -> mi.emails.getRaw(lastId),

@@ -5,7 +5,8 @@
   "description": "End-to-end walk-through of the MissionInbox Node SDK",
   "type": "module",
   "scripts": {
-    "start": "tsx main.ts"
+    "start": "tsx main.ts",
+    "errors": "tsx error-catalog.ts"
   },
   "dependencies": {
     "@missioninbox/sdk": "^0.2.0",

@@ -454,6 +454,8 @@ function section9EmailsSend(MissionInbox $mi, bool $isFull, ?string $testSender,
         skipMsg('getStatus / getBulkStatus (Message-ID header not available yet)');
     }
 
+    // Raw MIME is assembled asynchronously — for very-fresh sends the API
+    // commonly returns ['status' => 'error'] until assembly finishes.
     tryCall(
         "emails.getRaw('$lastId')",
         fn () => $mi->emails->getRaw($lastId),

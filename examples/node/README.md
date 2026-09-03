@@ -2,10 +2,12 @@
 
 Single-file walk-through that exercises every method in [`@missioninbox/sdk`](https://www.npmjs.com/package/@missioninbox/sdk) against a live environment. Doubles as a tutorial and as an integration test.
 
+**See also:** [package docs](../../packages/node/README.md) for the SDK's full method reference, and the [top-level examples README](../README.md) for the shared design.
+
 ## Prerequisites
 
 - Node.js 18 or newer
-- A MissionInbox API key (staging or production)
+- A MissionInbox API key — [where to get one](../../README.md#get-an-api-key)
 - If you want to run **full mode** (see below): a registered sending identifier, a recipient email address you control, and a domain registered on your account
 
 ## Run
@@ -21,7 +23,7 @@ npm start
 
 Set via `MI_EXAMPLE_MODE`:
 
-- **`safe`** (default) — only read-only endpoints. No state changes, no emails sent. Safe on production.
+- **`safe`** (default) — read-only endpoints only. No state changes, no emails sent. Reads still print account state (domain names, identifier addresses) to stdout.
 - **`full`** — additionally exercises creates, updates, deletes, redirect setup, and sends **one real email**. Every resource created is deleted before exit.
 
 Full mode requires these additional env vars:
@@ -45,11 +47,32 @@ Numbered sections, all output to stdout. Every method call gets one line: `→ m
 6. `projects` — list, get, then (full) create/update/assignDomains/delete
 7. `analytics` — overview + activity graph (last 7 days daily)
 8. `tasks` — list, get, outputs, stats, cancel demo (full)
-9. `emails` (full only) — send → getStatus → getBulkStatus → getDetails → getRaw → search
+9. `emails` (full only) — send → getDetails → getStatus → getBulkStatus → getRaw → search
 10. `emailQueue` — list, best-effort retry/cancel on any existing items
 11. **Errors** — trigger 401 and 403 unregistered-sender against a throwaway client; verify the SDK maps them to the right typed exception
 
 At the end, a **Cleanup** section runs in `finally` — deletes anything the run created.
+
+## Expected output (first few lines)
+
+A healthy safe-mode run starts like this:
+
+```
+MissionInbox SDK example — mode=safe, base=https://api-v4-staging.missioninbox.com
+
+━━━ 1. Health check ━━━
+  → health.check()                              Healthy
+
+━━━ 2. Send-limit status ━━━
+  → emails.getSendLimit()                       unlimited (paid plan)
+
+━━━ 3. Sending identifiers ━━━
+  → sendingIdentifiers.list()                   3 identifier(s)
+  → sendingIdentifiers.get('abc12345…')         john@yourdomain.com (canSend: true)
+  ~ skipped: create/update/delete (safe mode)
+```
+
+`→` = call succeeded · `~` = deliberately skipped · `✗` = error (paste it back for debugging).
 
 ## Deliberately not called
 
@@ -59,13 +82,6 @@ At the end, a **Cleanup** section runs in `finally` — deletes anything the run
 ## Troubleshooting
 
 - **`AuthenticationError` at step 1** — `MI_API_KEY` is wrong or the base URL doesn't match its environment.
-- **`UnregisteredSenderError` at step 9** — `MI_TEST_SENDER` isn't a registered sending identifier. Run `mi.sendingIdentifiers.list()` to see what's registered.
-- **`ValidationError` when creating a test project** — likely a project with that name already exists from a previous partial run. The name includes a timestamp so a re-run should get past it.
-
-## What files land
-
-- `main.ts` — the single-file walk-through
-- `.env.example` — copy to `.env` and fill in
-- `package.json`, `tsconfig.json` — minimal build config
-
-No dist, no bundling. `tsx` runs the TypeScript directly.
+- **`UnregisteredSenderError` at step 9** — `MI_TEST_SENDER` isn't a registered sending identifier for this account. Re-run in safe mode and check the §3 output for what's registered.
+- **`ConflictError` when creating a test project or identifier** — a resource with the timestamp-suffixed name already exists (e.g. from an interrupted run). The name embeds `Date.now()`, so a fresh run gets past it.
+- **`emails.getRaw` prints `status=error`** — expected for very-fresh sends; the raw MIME source is assembled asynchronously and may not be ready for a message sent seconds ago.

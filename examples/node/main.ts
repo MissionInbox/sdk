@@ -496,6 +496,8 @@ async function section9EmailsSend(): Promise<void> {
     skip('getStatus / getBulkStatus (Message-ID header not available yet)');
   }
 
+  // Raw MIME is assembled asynchronously — for very-fresh sends the API
+  // commonly returns { status: 'error' } until assembly finishes.
   await tryCall(
     `emails.getRaw('${lastSentMessageId}')`,
     () => mi.emails.getRaw(lastSentMessageId!),

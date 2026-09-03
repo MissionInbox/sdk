@@ -383,6 +383,8 @@ def section9_send() -> None:
         skip("entire section (safe mode)")
         return
 
+    # Note: the parameter is spelled `from_` (trailing underscore) because
+    # `from` is a reserved keyword in Python. It's mapped to `from` on the wire.
     sent = try_call(
         f"emails.send(from={test_sender}, to={test_to})",
         lambda: mi.emails.send(
@@ -421,6 +423,8 @@ def section9_send() -> None:
     else:
         skip("getStatus / getBulkStatus (Message-ID header not available yet)")
 
+    # Raw MIME is assembled asynchronously — for very-fresh sends the API
+    # commonly returns {"status": "error"} until assembly finishes.
     try_call(
         f"emails.getRaw('{last_id}')",
         lambda: mi.emails.get_raw(last_id),
