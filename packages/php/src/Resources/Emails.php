@@ -78,14 +78,29 @@ final class Emails
         return $this->http->request('POST', '/api/email/send', body: $payload);
     }
 
-    /** Look up the delivery status of a single message. */
+    /**
+     * Look up the delivery status of a single message by its RFC 822 `Message-ID`
+     * header.
+     *
+     * Important: `$messageId` is **not** the id returned by {@see Emails::send()}
+     * (that is the API's internal numeric primary key). To obtain the `Message-ID`
+     * header value after sending, call {@see Emails::getDetails()} with
+     * `include: ['properties']` and read `$result['message']['properties']['message_id']`.
+     * It's also present on each item returned by {@see Emails::search()}.
+     */
     public function getStatus(string $messageId): array
     {
         return $this->http->request('POST', '/api/email/status', body: ['messageId' => $messageId]);
     }
 
     /**
-     * Look up delivery status for many messages in one request.
+     * Look up delivery status for many messages in one request. Entries in the
+     * `statuses` array align by index with `$messageIds`; `null` entries mean the
+     * id was not found.
+     *
+     * Same caveat as {@see Emails::getStatus()}: each entry must be an RFC 822
+     * `Message-ID` header value, not the numeric id returned by
+     * {@see Emails::send()}.
      *
      * @param array<string> $messageIds
      * @return array{statuses: array<array<string, mixed>|null>}

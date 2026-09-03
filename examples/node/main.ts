@@ -470,24 +470,39 @@ async function section9EmailsSend(): Promise<void> {
 
   lastSentMessageId = sent.id;
 
-  await tryCall(`emails.getStatus('${lastSentMessageId}')`, () => mi.emails.getStatus(lastSentMessageId!), (r) => `status=${r.status}`);
-  await tryCall(
-    `emails.getBulkStatus(['${lastSentMessageId}'])`,
-    () => mi.emails.getBulkStatus([lastSentMessageId!]),
-    (r) => `${r.statuses.filter(Boolean).length}/${r.statuses.length} found`,
-  );
-  await tryCall(
+  // getDetails accepts the numeric id returned by send(). Extract the RFC 822
+  // Message-ID header value from properties — that's what getStatus /
+  // getBulkStatus expect.
+  const details = await tryCall(
     `emails.getDetails('${lastSentMessageId}', [properties, activity])`,
     () => mi.emails.getDetails(lastSentMessageId!, ['properties', 'activity']),
     (r) => `subject=${r.message.properties?.subject}`,
   );
+
+  const rfc822MessageId = details?.message.properties?.message_id;
+
+  if (rfc822MessageId) {
+    await tryCall(
+      `emails.getStatus('${short(rfc822MessageId)}')`,
+      () => mi.emails.getStatus(rfc822MessageId),
+      (r) => `status=${r.status}, bounce=${r.bounce}`,
+    );
+    await tryCall(
+      `emails.getBulkStatus(['${short(rfc822MessageId)}'])`,
+      () => mi.emails.getBulkStatus([rfc822MessageId]),
+      (r) => `${r.statuses.filter(Boolean).length}/${r.statuses.length} found`,
+    );
+  } else {
+    skip('getStatus / getBulkStatus (Message-ID header not available yet)');
+  }
+
   await tryCall(
     `emails.getRaw('${lastSentMessageId}')`,
     () => mi.emails.getRaw(lastSentMessageId!),
     (r) => (r.raw_data ? `${r.raw_data.length} bytes` : `status=${r.status}`),
   );
   await tryCall(
-    `emails.search({ tag: 'sdk-example', limit: 5 })`,
+    `emails.search({ from: <sender>, limit: 5 })`,
     () => mi.emails.search({ from: MI_TEST_SENDER, limit: 5 }),
     (r) => `${r.data.length} hit(s), total ${r.total}`,
   );

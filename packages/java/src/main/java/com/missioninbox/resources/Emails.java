@@ -83,14 +83,32 @@ public final class Emails {
         return (Map<String, Object>) http.request("POST", "/api/email/send", null, payload);
     }
 
-    /** Look up the delivery status of a single message. */
+    /**
+     * Look up the delivery status of a single message by its RFC 822
+     * {@code Message-ID} header.
+     *
+     * <p>Important: {@code messageId} is <b>not</b> the id returned by
+     * {@link #send} (that is the API's internal numeric primary key). To
+     * obtain the {@code Message-ID} header value after sending, call
+     * {@link #getDetails} with {@code include: ["properties"]} and read
+     * {@code result.message.properties.message_id}. It's also present on
+     * each hit returned by {@link #search}.
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getStatus(String messageId) {
         return (Map<String, Object>) http.request(
                 "POST", "/api/email/status", null, Collections.singletonMap("messageId", messageId));
     }
 
-    /** Look up delivery status for many messages. */
+    /**
+     * Look up delivery status for many messages. Entries in {@code statuses}
+     * align by index with {@code messageIds}; {@code null} entries mean the id
+     * was not found.
+     *
+     * <p>Same caveat as {@link #getStatus}: each entry must be an RFC 822
+     * {@code Message-ID} header value, not the numeric id returned by
+     * {@link #send}.
+     */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getBulkStatus(List<String> messageIds) {
         return (Map<String, Object>) http.request(

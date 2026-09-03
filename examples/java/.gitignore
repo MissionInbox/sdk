@@ -1,0 +1,4 @@
+target/
+.env
+*.class
+.mvn/wrapper/maven-wrapper.jar

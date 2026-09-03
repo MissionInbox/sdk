@@ -89,11 +89,25 @@ class Emails:
         return self._http.request("POST", "/api/email/send", body=payload)
 
     def get_status(self, message_id: str) -> dict[str, Any]:
-        """Look up the delivery status of a single message."""
+        """Look up the delivery status of a single message by RFC 822 Message-ID.
+
+        Important: ``message_id`` is **not** the id returned by :meth:`send`
+        (that is the API's internal numeric primary key). To obtain the
+        ``Message-ID`` header value after sending, call :meth:`get_details`
+        with ``include=["properties"]`` and read
+        ``result["message"]["properties"]["message_id"]``. It's also on each
+        hit returned by :meth:`search`.
+        """
         return self._http.request("POST", "/api/email/status", body={"messageId": message_id})
 
     def get_bulk_status(self, message_ids: list[str]) -> dict[str, Any]:
-        """Look up delivery status for many messages. ``None`` entries mean the id was not found."""
+        """Look up delivery status for many messages. Entries in ``statuses``
+        align by index with ``message_ids``; ``None`` entries mean the id was
+        not found.
+
+        Same caveat as :meth:`get_status`: each entry must be an RFC 822
+        ``Message-ID`` header value, not the numeric id returned by :meth:`send`.
+        """
         return self._http.request("POST", "/api/email/bulk_status", body={"messageIds": message_ids})
 
     def get_details(

@@ -1,0 +1,14 @@
+{
+  "name": "missioninbox/example-php",
+  "description": "End-to-end walk-through of the MissionInbox PHP SDK",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.1",
+    "missioninbox/sdk": "^0.1.0",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

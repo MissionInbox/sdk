@@ -87,13 +87,23 @@ export class Emails {
   }
 
   /**
-   * Look up the delivery status of a single message.
+   * Look up the delivery status of a single message by its RFC 822 `Message-ID`
+   * header.
    *
-   * @param messageId - The id returned from {@link Emails.send}.
+   * Important: `messageId` is **not** the same as the id returned by
+   * {@link Emails.send} (that is the API's internal numeric primary key). To
+   * obtain the `Message-ID` header value after sending, call
+   * {@link Emails.getDetails} with `include: ['properties']` and read
+   * `result.message.properties.message_id`. It's also present on each
+   * {@link SearchEmailHit.message_id} returned by {@link Emails.search}.
+   *
+   * @param messageId - RFC 822 `Message-ID` header value.
    *
    * @example
    * ```ts
-   * const status = await mi.emails.getStatus('msg_abc123');
+   * const { id } = await mi.emails.send({ ... });
+   * const details = await mi.emails.getDetails(id, ['properties']);
+   * const status = await mi.emails.getStatus(details.message.properties!.message_id);
    * if (status.bounce) console.log('bounced:', status.status);
    * ```
    */
@@ -107,8 +117,12 @@ export class Emails {
 
   /**
    * Look up delivery status for many messages in one request. Entries in the
-   * `statuses` array align by index with the input `messageIds`. `null` entries
+   * `statuses` array align by index with the input `messageIds`; `null` entries
    * mean the id was not found.
+   *
+   * Same caveat as {@link Emails.getStatus}: each entry must be an RFC 822
+   * `Message-ID` header value, not the numeric id returned by
+   * {@link Emails.send}.
    */
   async getBulkStatus(messageIds: string[]): Promise<BulkMessageStatus> {
     return this.client.request<BulkMessageStatus>({
