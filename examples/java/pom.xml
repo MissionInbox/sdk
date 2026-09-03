@@ -16,6 +16,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <!-- Default entrypoint; override with -Dexec.mainClass=com.missioninbox.example.ErrorCatalog -->
+    <exec.mainClass>com.missioninbox.example.Main</exec.mainClass>
   </properties>
 
   <dependencies>
@@ -39,7 +41,8 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
-          <mainClass>com.missioninbox.example.Main</mainClass>
+          <!-- Override with -Dexec.mainClass=com.missioninbox.example.ErrorCatalog to run the error catalog. -->
+          <mainClass>${exec.mainClass}</mainClass>
         </configuration>
       </plugin>
     </plugins>
