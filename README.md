@@ -6,6 +6,7 @@ Official SDKs for the [MissionInbox](https://missioninbox.com) API.
 |---|---|---|
 | JavaScript / TypeScript | [`@missioninbox/sdk`](https://www.npmjs.com/package/@missioninbox/sdk) (npm) | Beta |
 | PHP | [`missioninbox/sdk`](https://packagist.org/packages/missioninbox/sdk) (Packagist) | Beta |
+| Python | [`missioninbox`](https://pypi.org/project/missioninbox/) (PyPI) | Beta |
 
 ```ts
 import { MissionInbox } from '@missioninbox/sdk';
@@ -27,6 +28,7 @@ See the per-package README for install and usage:
 
 - [Node / TypeScript](./packages/node/README.md)
 - [PHP](./packages/php/README.md)
+- [Python](./packages/python/README.md)
 
 ## License
 
