@@ -10,6 +10,15 @@ npm install @missioninbox/sdk
 
 Requires Node.js 18 or newer.
 
+## Get an API key
+
+Generate a product API key from your MissionInbox dashboard. The SDK sends it via the `X-Server-API-Key` header. Keep separate keys for staging and production.
+
+Environment URLs:
+
+- **Staging:** `https://api-v4-staging.missioninbox.com`
+- **Production:** contact your MissionInbox account manager for the URL of your assigned cluster.
+
 ## Send a transactional email
 
 ```ts
@@ -60,7 +69,7 @@ The client exposes eight top-level resources — dot-completion in your editor i
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `apiKey` | `string` | — | Required. Your MissionInbox product API key. |
-| `baseUrl` | `string` | — | Required. The API URL for your environment. |
+| `baseUrl` | `string` | — | Required. The API URL for your environment (e.g. staging: `https://api-v4-staging.missioninbox.com`). |
 | `timeout` | `number` | `30000` | Per-request timeout in milliseconds. |
 | `maxRetries` | `number` | `2` | Retries on 429 and 5xx (exponential backoff, honours `Retry-After`). |
 | `fetch` | `typeof fetch` | `globalThis.fetch` | Override for testing or proxy scenarios. |

@@ -10,6 +10,15 @@ composer require missioninbox/sdk
 
 Requires PHP 8.1 or newer.
 
+## Get an API key
+
+Generate a product API key from your MissionInbox dashboard. The SDK sends it via the `X-Server-API-Key` header. Keep separate keys for staging and production.
+
+Environment URLs:
+
+- **Staging:** `https://api-v4-staging.missioninbox.com`
+- **Production:** contact your MissionInbox account manager for the URL of your assigned cluster.
+
 ## Send a transactional email
 
 ```php
@@ -64,7 +73,7 @@ The client exposes eight top-level resources:
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `api_key` | `string` | — | Required. Your MissionInbox product API key. |
-| `base_url` | `string` | — | Required. The API URL for your environment. |
+| `base_url` | `string` | — | Required. The API URL for your environment (e.g. staging: `https://api-v4-staging.missioninbox.com`). |
 | `timeout` | `int` | `30000` | Per-request timeout in milliseconds. |
 | `max_retries` | `int` | `2` | Retries on 429 and 5xx (exponential backoff, honours `Retry-After`). |
 | `http_client` | `Psr\Http\Client\ClientInterface` | Guzzle | PSR-18 override for testing or proxy scenarios. |

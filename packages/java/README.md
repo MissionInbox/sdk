@@ -22,6 +22,15 @@ implementation("com.missioninbox:sdk:0.1.0")
 
 Requires Java 11 or newer.
 
+## Get an API key
+
+Generate a product API key from your MissionInbox dashboard. The SDK sends it via the `X-Server-API-Key` header. Keep separate keys for staging and production.
+
+Environment URLs:
+
+- **Staging:** `https://api-v4-staging.missioninbox.com`
+- **Production:** contact your MissionInbox account manager for the URL of your assigned cluster.
+
 ## Send a transactional email
 
 ```java
@@ -73,9 +82,9 @@ Configure via the builder:
 ```java
 MissionInbox mi = MissionInbox.builder()
     .apiKey("...")
-    .baseUrl("...")
-    .timeout(Duration.ofSeconds(60))  // default 30
-    .maxRetries(3)                    // default 2
+    .baseUrl("https://api-v4-staging.missioninbox.com")  // your environment URL
+    .timeout(Duration.ofSeconds(60))                     // default 30
+    .maxRetries(3)                                       // default 2
     .build();
 ```
 

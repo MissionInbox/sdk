@@ -10,6 +10,15 @@ pip install missioninbox
 
 Requires Python 3.9 or newer.
 
+## Get an API key
+
+Generate a product API key from your MissionInbox dashboard. The SDK sends it via the `X-Server-API-Key` header. Keep separate keys for staging and production.
+
+Environment URLs:
+
+- **Staging:** `https://api-v4-staging.missioninbox.com`
+- **Production:** contact your MissionInbox account manager for the URL of your assigned cluster.
+
 ## Send a transactional email
 
 ```python
@@ -63,7 +72,7 @@ The client exposes eight top-level resources:
 | Argument | Type | Default | Description |
 |---|---|---|---|
 | `api_key` | `str` | — | Required. Your MissionInbox product API key. |
-| `base_url` | `str` | — | Required. The API URL for your environment. |
+| `base_url` | `str` | — | Required. The API URL for your environment (e.g. staging: `https://api-v4-staging.missioninbox.com`). |
 | `timeout` | `float` | `30.0` | Per-request timeout in seconds. |
 | `max_retries` | `int` | `2` | Retries on 429 and 5xx (exponential backoff, honours `Retry-After`). |
 | `http_client` | `httpx.Client` | new client | Optional override for advanced transport control. |
